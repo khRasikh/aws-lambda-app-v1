@@ -1,0 +1,49 @@
+org: khrasikh
+app: aws-node
+service: aws-node-app-v1
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  lambdaHashingVersion: "20201221"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource: "*"
+
+functions:
+  hello:
+    handler: src/hello.handler
+    events:
+      - httpApi:
+          path: /
+          method: get
+  addTodo:
+    handler: src/addTodo.handler
+    events:
+      - httpApi:
+          path: /add
+          method: post
+  listTodo:
+    handler: src/listTodo.handler
+    events:
+      - httpApi:
+          path: /list
+          method: get
+
+resources:
+  Resources:
+    TodoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TodoTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
